@@ -4,6 +4,8 @@ import network
 import utime
 import ntptime
 
+from oledshow import oled
+
 ## ftp access
 #from ftp import ftpserver
 
@@ -13,7 +15,7 @@ def do_connect():
     timed_out = False
 
     if not sta_if.isconnected():
-        print('connecting to network...')
+        print('Connexion au Wifi...')
         sta_if.active(True)
         sta_if.connect(config.wifi_config["ssid"], config.wifi_config["password"])
         while not sta_if.isconnected() and \
@@ -25,8 +27,12 @@ def do_connect():
 
     if sta_if.isconnected():
         ntptime.settime()
-        print('network config:', sta_if.ifconfig())
+        print('Config reseau :', sta_if.ifconfig())
+        oled.fill(0) 
+        oled.text('WiFi OK', 0, 0) 
+        oled.text('IP :'+sta_if.ifconfig()[0], 0, 20) 
+        oled.show()
     else: 
-        print('internet not available')
+        print('internet non dispo')
 
 do_connect()
