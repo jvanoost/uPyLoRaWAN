@@ -10,6 +10,10 @@ from hx711_gpio import *
 
 __DEBUG__ = True
 
+# micro python epoch is since 01/01/2000 need to give timediff since 01/01/1970
+timediff = 946684800
+
+
 ttn_config = TTN(ttn_config['devaddr'], ttn_config['nwkey'], ttn_config['app'], country=ttn_config['country'])
 
 device_spi = SPI(device_config['spi_unit'], baudrate = 10000000, 
@@ -41,18 +45,28 @@ lora.on_receive(on_receive)
 lora.receive()
 
 while True:
-    epoch = utime.time()
+    epoch = utime.time() + timediff
     temperature = urandom.randint(0,30)
 
     weight = hx711.get_units()
+    weight = urandom.randint(0,15) + urandom.random()
+    weightReal = int(weight)
+    weightDec = int((weight % 1) * 100)
 
-    payload = struct.pack('@Qh', int(epoch), int(temperature), float(weight))
+    payload = struct.pack('@Qh', int(epoch), int(temperature))
+    payload = struct.pack('@Qh', int(epoch), int(temperature), int(weightReal), int(weightDec))
+    payload1 = struct.pack('@Qh', int(weightReal), int(weightDec))
 
     if __DEBUG__:
         print("Epoch: %s" % (epoch))
         print("Temperature: %s" % (temperature))
         print("Weight : %s" % weight)
+        print("Weight real : %s" % weightReal)
+        print("Weight dec : %s" % weightDec)
+        print(type(payload))
         print(payload)
+        print(type(payload1))
+        print(payload1)
 
     lora.send_data(data=payload, data_length=len(payload), frame_counter=frame_counter)
     lora.receive()

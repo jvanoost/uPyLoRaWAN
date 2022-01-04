@@ -6,6 +6,10 @@ import ntptime
 
 from oledshow import oled
 
+##acces webrepl
+import webrepl
+webrepl.start()
+
 ## ftp access
 #from ftp import ftpserver
 
